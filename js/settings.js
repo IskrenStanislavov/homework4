@@ -15,6 +15,10 @@ define(function (require) {
 			increaseBtn: { normal: {x: 624, y: 0}, down: {x: 624, y: 46}, inactive: {x: 624, y: 92}, width: 46, height: 46 },
 			decreaseBtn: { normal: {x: 670, y: 0}, down: {x: 670, y: 46}, inactive: {x: 670, y: 92}, width: 46, height: 46 }
 		},
+		deck:{
+			suits:["spades", "hearts", "diamonds", "clubs"],
+			count: 52
+		},
 		totalDeckCards: 52,
 		totalPlayableCards: 5,
 		cardsScale: 1.5,

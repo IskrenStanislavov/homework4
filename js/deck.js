@@ -23,6 +23,15 @@ define(function (require) {
 			deckCard2 = createSpriteFromImage( "img/cards_back.png", 106, 176, 1.5, this ),
 			deckCard3 = createSpriteFromImage( "img/cards_back.png", 104, 174, 1.5, this );
 		
+		this.allCards = [].range(0,settings.deck.count-1).map(function (_, i){
+            return new Card({
+                "suit": settings.deck.suits[Math.floor(i/13)],
+                "rank": i%13 + 2
+            });
+        });
+
+        this.cardsLeft = this.allCards.slice(0);
+
 		this.cardsArr = [];
 		this.dealerCard = null;
 		this.playerCard = null;
@@ -52,6 +61,8 @@ define(function (require) {
 			this.addChild(card);
 		}
 	};
+
+
 
 	Deck.prototype.handlePick = function( pickedCard ){
 		this.playerCard = pickedCard;
@@ -179,6 +190,10 @@ define(function (require) {
 				card.hideWinFrame();
 			}
 		});
+	};
+
+	Deck.prototype.restart = function(){
+		this.cardsLeft = this.cardsArr.slice(0);
 	};
 
 	return Deck;

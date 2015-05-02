@@ -11,6 +11,7 @@ define(function (require) {
 		Wins = require('wins');
 
 	var Balance = require('balance');
+	var Player  = require('player');
 
 	var Game = function(){
 		PIXI.DisplayObjectContainer.call(this);
@@ -102,23 +103,10 @@ define(function (require) {
 		});
 		this.addChild(this.collectButton);
 
-		/* BALANCE 1 */
+		this.player = this.addChild(new Player(1000, 1));
 
-		this.balance1 = this.addChild(new Balance(1000));
-		this.balance1.position.set( 1050, 10);
-		
-
-		/* BALANCE 2 */
-		this.balance = new Bangup();
-		this.balance.setXY( 150, 28);
-		this.balanceAmount = 1000;
-		this.balance.update( this.balanceAmount, this.balanceAmount );
-		this.addChild(this.balance);
-
-		var balanceText = new PIXI.Text("BALANCE1:", { font: 'bold 24px Arial', fill: '#f3d601', align: 'left' });
-		balanceText.x = 10;
-		balanceText.y = 10;
-		this.addChild(balanceText);
+		/* BALANCE */
+		this.balance = this.player.balance;
 
 		/* DECK OF CARDS */
 		this.deck = new Deck();
@@ -129,8 +117,7 @@ define(function (require) {
 		this.addChild(this.wins);
 
 		/* BET */
-		this.bet = new Bet();
-		this.addChild(this.bet);
+		this.bet = this.player.bet;
 
 	
 		/* MESSAGE */
@@ -175,7 +162,8 @@ define(function (require) {
 
 		switch( game.currentState ) {
 			case game.STATES.START:
-				if ( game.balanceAmount < game.bet.getCurrentBet() ) {// ( game.player[i].canPlaceBet())
+
+				if ( !game.player.placeBet() ) {// failed to place bet
 					game.deactivateButtons([game.doubleButton, game.doubleHalfButton, game.collectButton, game.startButton]);
 					game.bet.deactivateButtons();
 
@@ -190,10 +178,6 @@ define(function (require) {
 				game.deactivateButtons([game.startButton]);
 				game.bet.deactivateButtons();
 				game.wins.showStartAmount( game.bet.getCurrentBet() );
-
-				var newBalance = game.balanceAmount - game.bet.getCurrentBet();
-				game.balance.update( game.balanceAmount, newBalance );
-				game.balanceAmount = newBalance;
 
 				game.newState(game.STATES.DEAL);
 			break;
@@ -299,8 +283,7 @@ define(function (require) {
         			game.bet.activateButtons();
         			var winAmount = game.wins.getWinAmount();
         			if ( winAmount > 0 ) {
-        				game.balance.update( game.balanceAmount, game.balanceAmount + winAmount );
-        				game.balanceAmount = game.balanceAmount + winAmount;
+        				game.player.receiveAmount(winAmount);
         			}
         		});
 
