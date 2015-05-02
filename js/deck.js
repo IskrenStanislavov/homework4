@@ -27,19 +27,6 @@ define(function (require) {
 		this.dealerCard = null;
 		this.playerCard = null;
 
-		this.createCards();
-
-		this.events = {
-			cardPicked: new Signal(),
-			allCardsDealed: new Signal(),
-			allCardsHidden: new Signal(),
-			dealersCardShown: new Signal()
-		};
-	};
-
-	Deck.prototype = Object.create( PIXI.DisplayObjectContainer.prototype );
-
-	Deck.prototype.createCards = function(){
 		var that = this;
 
 		for (var i = 0; i < settings.totalPlayableCards; i++) {
@@ -51,7 +38,16 @@ define(function (require) {
 			this.cardsArr.push( card );
 			this.addChild(card);
 		}
+
+		this.events = {
+			cardPicked: new Signal(),
+			allCardsDealed: new Signal(),
+			allCardsHidden: new Signal(),
+			dealersCardShown: new Signal()
+		};
 	};
+
+	Deck.prototype = Object.create( PIXI.DisplayObjectContainer.prototype );
 
 	Deck.prototype.handlePick = function( pickedCard ){
 		this.playerCard = pickedCard;
