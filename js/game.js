@@ -10,22 +10,10 @@ define(function (require) {
 		Message = require('message'),
 		Wins = require('wins');
 
+	var Balance = require('balance');
+
 	var Game = function(){
 		PIXI.DisplayObjectContainer.call(this);
-
-		this.doubleButton = null;
-		this.doubleHalfButton = null;
-		this.startButton = null;
-		this.collectButton = null;
-		this.dealedCardsContainer = null;
-		this.balance = null;
-		this.bet = null;
-		this.hints = null;
-		this.deck = null;
-		this.message = null;
-		this.dealedCards = [];
-		this.balanceAmount = 0;
-		this.chosenMultiplier = "";
 
 		this.STATES = {
 			START 		: 'start',
@@ -43,40 +31,28 @@ define(function (require) {
 		this.events = {
 			elementsCreated: new Signal()
 		}
-		
-
-		DEBUG = {};
-		DEBUG.game = this;
-		DEBUG.gaffs = {};
-
-		// call any of these methods BEFOR CLICKING ON "double" or "double half" buttons
-		DEBUG.gaffs.iWin = function(){
-			DEBUG.game.deck.cardsArr[0].setRankAndSuit( 0 );
-
-			for (var i = 1; i < 5; i++) {
-				DEBUG.game.deck.cardsArr[i].setRankAndSuit( 12 );
-			}
-		};
-
-		DEBUG.gaffs.dealerWins = function(){
-			DEBUG.game.deck.cardsArr[0].setRankAndSuit( 12 );
-
-			for (var i = 1; i < 5; i++) {
-				DEBUG.game.deck.cardsArr[i].setRankAndSuit( 0 );
-			}
-		};
-
-		DEBUG.gaffs.tie = function(){
-			for (var i = 0; i < 5; i++) {
-				DEBUG.game.deck.cardsArr[i].setRankAndSuit( 0 );
-			}
-		};
+		this.initDEBUG();
 	};
 
 	Game.prototype = Object.create( PIXI.DisplayObjectContainer.prototype );
 
+
 	Game.prototype.createGameElements = function () {
 		var that = this;
+
+		this.doubleButton = null;
+		this.doubleHalfButton = null;
+		this.startButton = null;
+		this.collectButton = null;
+		this.dealedCardsContainer = null;
+		this.bet = null;
+		this.hints = null;
+		this.deck = null;
+		this.message = null;
+		this.dealedCards = [];
+		this.chosenMultiplier = "";
+
+
 		var background = new PIXI.Sprite.fromImage('img/bg.jpg');
 		this.addChild(background);
 
@@ -88,11 +64,6 @@ define(function (require) {
 		dealersCardText.x = 275;
 		dealersCardText.y = 450;
 		this.addChild(dealersCardText);
-
-		var balanceText = new PIXI.Text("BALANCE:", { font: 'bold 24px Arial', fill: '#f3d601', align: 'left' });
-		balanceText.x = 10;
-		balanceText.y = 10;
-		this.addChild(balanceText);
 
 		var betPerGame = new PIXI.Text("Bet per game:", { font: 'bold 18px Arial', fill: '#c2c2c2', align: 'left' });
 		betPerGame.x = 200;
@@ -135,12 +106,23 @@ define(function (require) {
 		});
 		this.addChild(this.collectButton);
 
-		/* BALANCE */
+		/* BALANCE 1 */
+
+		this.balance1 = new Balance(1000);
+		this.balance1.setXY( 1150, 28+10);
+		this.addChild(this.balance1);
+
+		/* BALANCE 2 */
 		this.balance = new Bangup();
 		this.balance.setXY( 150, 28);
 		this.balanceAmount = 1000;
 		this.balance.update( this.balanceAmount, this.balanceAmount );
 		this.addChild(this.balance);
+
+		var balanceText = new PIXI.Text("BALANCE:", { font: 'bold 24px Arial', fill: '#f3d601', align: 'left' });
+		balanceText.x = 10;
+		balanceText.y = 10;
+		this.addChild(balanceText);
 
 		/* DECK OF CARDS */
 		this.deck = new Deck();
@@ -161,12 +143,41 @@ define(function (require) {
 		this.addChild(this.message);
 	};
 
+	Game.prototype.initDEBUG = function () {
+		DEBUG = {};
+		DEBUG.game = this;
+		DEBUG.gaffs = {};
+
+		// call any of these methods BEFOR CLICKING ON "double" or "double half" buttons
+		DEBUG.gaffs.iWin = function(){
+			DEBUG.game.deck.cardsArr[0].setRankAndSuit( 0 );
+
+			for (var i = 1; i < 5; i++) {
+				DEBUG.game.deck.cardsArr[i].setRankAndSuit( 12 );
+			}
+		};
+
+		DEBUG.gaffs.dealerWins = function(){
+			DEBUG.game.deck.cardsArr[0].setRankAndSuit( 12 );
+
+			for (var i = 1; i < 5; i++) {
+				DEBUG.game.deck.cardsArr[i].setRankAndSuit( 0 );
+			}
+		};
+
+		DEBUG.gaffs.tie = function(){
+			for (var i = 0; i < 5; i++) {
+				DEBUG.game.deck.cardsArr[i].setRankAndSuit( 0 );
+			}
+		};
+	};
+
 	Game.prototype.newState = function(){
 		var game = this;
 
 		switch( game.currentState ) {
 			case game.STATES.START:
-				if ( game.balanceAmount < game.bet.getCurrentBet() ) {
+				if ( game.balanceAmount < game.bet.getCurrentBet() ) {// ( game.player[i].canPlaceBet())
 					game.deactivateButtons([game.doubleButton, game.doubleHalfButton, game.collectButton, game.startButton]);
 					game.bet.deactivateButtons();
 
