@@ -109,8 +109,9 @@ define(function (require) {
 		/* BALANCE 1 */
 
 		this.balance1 = new Balance(1000);
-		this.balance1.setXY( 1150, 28+10);
+		this.balance1.setXY( 1150, 28);
 		this.addChild(this.balance1);
+		this.balance1.label.position.set(1010,10);
 
 		/* BALANCE 2 */
 		this.balance = new Bangup();
@@ -119,7 +120,7 @@ define(function (require) {
 		this.balance.update( this.balanceAmount, this.balanceAmount );
 		this.addChild(this.balance);
 
-		var balanceText = new PIXI.Text("BALANCE:", { font: 'bold 24px Arial', fill: '#f3d601', align: 'left' });
+		var balanceText = new PIXI.Text("BALANCE1:", { font: 'bold 24px Arial', fill: '#f3d601', align: 'left' });
 		balanceText.x = 10;
 		balanceText.y = 10;
 		this.addChild(balanceText);
