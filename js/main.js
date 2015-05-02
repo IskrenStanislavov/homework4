@@ -5,6 +5,14 @@ Array.prototype.range = function(start,end){
 	});
 };
 
+Array.prototype.shuffle = function(){
+	var result = [];
+	while(this.length > 0 ){
+		result.push( this.splice(Math.floor(Math.random() * this.length), 1)[0] );
+	}
+	return result;
+};
+
 
 require(["libs/pixi.dev", "libs/TweenMax.min", "settings", "stage", "game" ],
 	function( PIXI, TweenMax, settings, stage, Game ) {
