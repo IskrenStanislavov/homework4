@@ -29,6 +29,9 @@ define(function (require) {
 
 		this.currentState = "";
 
+		this.player = this.addChild(new Player(1000, 1));
+
+
 		this.initDEBUG();
 		this.createVisualElements();
 	};
@@ -101,7 +104,6 @@ define(function (require) {
 		});
 		this.addChild(this.collectButton);
 
-		this.player = this.addChild(new Player(1000, 1));
 
 		/* BALANCE */
 		this.balance = this.player.balance;
