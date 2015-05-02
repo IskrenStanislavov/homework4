@@ -74,8 +74,7 @@ define(function (require) {
 		this.doubleButton = new Button( "double" );
 		this.doubleButton.events.clicked.add(function(){
 			that.chosenMultiplier = "double";
-			that.currentState = that.STATES.PICK_A_CARD;
-			that.newState();
+			that.newState(that.STATES.PICK_A_CARD);
 		});
 		this.doubleButton.setXY( 750, 480 );
 		this.addChild(this.doubleButton);
@@ -83,8 +82,7 @@ define(function (require) {
 		this.doubleHalfButton = new Button( "doubleHalf" );
 		this.doubleHalfButton.events.clicked.add(function(){
 			that.chosenMultiplier = "doubleHalf";
-			that.currentState = that.STATES.PICK_A_CARD;
-			that.newState();
+			that.newState(that.STATES.PICK_A_CARD);
 		});
 		this.doubleHalfButton.setXY( 550, 480 );
 		this.addChild(this.doubleHalfButton);
@@ -92,8 +90,7 @@ define(function (require) {
 		this.startButton = new Button( "start" );
 		this.startButton.setXY( 920, settings.gameHeight - 65 );
 		this.startButton.events.clicked.add(function(){
-			that.currentState = that.STATES.START;
-			that.newState();
+			that.newState(that.STATES.START);
 		});
 		this.startButton.activate();
 		this.addChild(this.startButton);
@@ -101,8 +98,7 @@ define(function (require) {
 		this.collectButton = new Button( "collect" );
 		this.collectButton.setXY( 1100, settings.gameHeight - 65 );
 		this.collectButton.events.clicked.add(function(){
-			that.currentState = that.STATES.FINISH;
-			that.newState();
+			that.newState(that.STATES.FINISH);
 		});
 		this.addChild(this.collectButton);
 
@@ -173,8 +169,9 @@ define(function (require) {
 		};
 	};
 
-	Game.prototype.newState = function(){
+	Game.prototype.newState = function( state ){
 		var game = this;
+		this.currentState = state;
 
 		switch( game.currentState ) {
 			case game.STATES.START:
@@ -198,8 +195,7 @@ define(function (require) {
 				game.balance.update( game.balanceAmount, newBalance );
 				game.balanceAmount = newBalance;
 
-				game.currentState = game.STATES.DEAL;
-				game.newState();
+				game.newState(game.STATES.DEAL);
 			break;
 			case game.STATES.DEAL:
 				game.deck.events.allCardsDealed.addOnce(function(){
@@ -222,8 +218,7 @@ define(function (require) {
 	        	game.hints.hide();
 
 	        	game.deck.events.cardPicked.addOnce(function(){
-        			game.currentState = game.STATES.RESULT;
-					game.newState();
+					game.newState(game.STATES.RESULT);
 	        	});
 
 	        	game.deck.events.dealersCardShown.addOnce(function(){
@@ -237,14 +232,11 @@ define(function (require) {
 	        		game.wins.setWinner( resultData );
 
 	        	if ( resultData.dealer > resultData.player ) {
-	        		game.currentState = game.STATES.LOOSE;
-					game.newState();
+					game.newState(game.STATES.LOOSE);
 	        	} else if ( resultData.dealer < resultData.player ) {
-	        		game.currentState = game.STATES.WIN;
-					game.newState();
+					game.newState(game.STATES.WIN);
 	        	} else {
-	        		game.currentState = game.STATES.TIE;
-					game.newState();
+					game.newState(game.STATES.TIE);
 	        	}
 	        break;
 	        case game.STATES.WIN:
@@ -258,8 +250,7 @@ define(function (require) {
 
 	        	setTimeout(function(){
 	        		game.deck.events.allCardsHidden.addOnce(function(){
-	        			game.currentState = game.STATES.DEAL;
-						game.newState();
+						game.newState(game.STATES.DEAL);
 	        		});
 
 	        		game.wins.hideFutureWins();
@@ -277,8 +268,7 @@ define(function (require) {
 	        	}, 1500);
 
 	        	setTimeout(function(){
-	        		game.currentState = game.STATES.FINISH;
-					game.newState();
+					game.newState(game.STATES.FINISH);
 	        	}, 3500);
 	        break;
 	        case game.STATES.TIE:
@@ -290,8 +280,7 @@ define(function (require) {
 
 	        	setTimeout(function(){
 	        		game.deck.events.allCardsHidden.addOnce(function(){
-	        			game.currentState = game.STATES.DEAL;
-						game.newState();
+						game.newState(game.STATES.DEAL);
 	        		});
 
 	        		game.wins.hideFutureWins();
@@ -321,8 +310,7 @@ define(function (require) {
 	};
 
 	Game.prototype.start = function () {
-		this.currentState = this.STATES.BET;
-		this.newState();
+		this.newState(this.STATES.BET);
 	};
 
 	Game.prototype.activateButtons = function( buttons ){
