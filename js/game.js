@@ -136,11 +136,12 @@ define(function (require) {
 		this.bet = new Bet();
 		this.addChild(this.bet);
 
-		this.events.elementsCreated.dispatch();
 	
 		/* MESSAGE */
 		this.message = new Message();
 		this.addChild(this.message);
+
+		this.events.elementsCreated.dispatch();
 	};
 
 	Game.prototype.initDEBUG = function () {
