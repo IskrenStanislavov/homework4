@@ -27,7 +27,17 @@ define(function (require) {
 		this.balanceAmount = 0;
 		this.chosenMultiplier = "";
 
-		this.STATES = { START: 'start', DEAL: 'deal', BET: 'bet', PICK_A_CARD: 'pick', RESULT: 'result', WIN: 'win', LOOSE: 'loose', FINISH: 'finish' };
+		this.STATES = {
+			START 		: 'start',
+			DEAL 		: 'deal',
+			BET 		: 'bet',
+			PICK_A_CARD : 'pick',
+			RESULT 		: 'result',
+			WIN 		: 'win',
+			LOOSE 		: 'loose',
+			FINISH 		: 'finish'
+		};
+
 		this.currentState = "";
 
 		this.events = {
