@@ -75,6 +75,92 @@ define(function (require) {
 
 	Game.prototype = Object.create( PIXI.DisplayObjectContainer.prototype );
 
+	Game.prototype.createGameElements = function () {
+		var that = this;
+		var background = new PIXI.Sprite.fromImage('img/bg.jpg');
+		this.addChild(background);
+
+		/* TEXTS */
+		this.hints = new Hints();
+		this.addChild(this.hints);
+		
+		var dealersCardText = new PIXI.Text("Dealer's card", { font: 'bold 24px Arial', fill: '#c2c2c2', align: 'left' });
+		dealersCardText.x = 275;
+		dealersCardText.y = 450;
+		this.addChild(dealersCardText);
+
+		var balanceText = new PIXI.Text("BALANCE:", { font: 'bold 24px Arial', fill: '#f3d601', align: 'left' });
+		balanceText.x = 10;
+		balanceText.y = 10;
+		this.addChild(balanceText);
+
+		var betPerGame = new PIXI.Text("Bet per game:", { font: 'bold 18px Arial', fill: '#c2c2c2', align: 'left' });
+		betPerGame.x = 200;
+		betPerGame.y = settings.gameHeight - 80;
+		this.addChild(betPerGame);
+
+		/* BUTTONS */
+		this.doubleButton = new Button( "double" );
+		this.doubleButton.events.clicked.add(function(){
+			that.chosenMultiplier = "double";
+			that.currentState = that.STATES.PICK_A_CARD;
+			that.newState();
+		});
+		this.doubleButton.setXY( 750, 480 );
+		this.addChild(this.doubleButton);
+
+		this.doubleHalfButton = new Button( "doubleHalf" );
+		this.doubleHalfButton.events.clicked.add(function(){
+			that.chosenMultiplier = "doubleHalf";
+			that.currentState = that.STATES.PICK_A_CARD;
+			that.newState();
+		});
+		this.doubleHalfButton.setXY( 550, 480 );
+		this.addChild(this.doubleHalfButton);
+
+		this.startButton = new Button( "start" );
+		this.startButton.setXY( 920, settings.gameHeight - 65 );
+		this.startButton.events.clicked.add(function(){
+			that.currentState = that.STATES.START;
+			that.newState();
+		});
+		this.startButton.activate();
+		this.addChild(this.startButton);
+
+		this.collectButton = new Button( "collect" );
+		this.collectButton.setXY( 1100, settings.gameHeight - 65 );
+		this.collectButton.events.clicked.add(function(){
+			that.currentState = that.STATES.FINISH;
+			that.newState();
+		});
+		this.addChild(this.collectButton);
+
+		/* BALANCE */
+		this.balance = new Bangup();
+		this.balance.setXY( 150, 28);
+		this.balanceAmount = 1000;
+		this.balance.update( this.balanceAmount, this.balanceAmount );
+		this.addChild(this.balance);
+
+		/* DECK OF CARDS */
+		this.deck = new Deck();
+		this.addChild(this.deck);
+
+		/* WINS */
+		this.wins = new Wins();
+		this.addChild(this.wins);
+
+		/* BET */
+		this.bet = new Bet();
+		this.addChild(this.bet);
+
+		this.events.elementsCreated.dispatch();
+	
+		/* MESSAGE */
+		this.message = new Message();
+		this.addChild(this.message);
+	};
+
 	Game.prototype.newState = function(){
 		var game = this;
 
@@ -220,92 +306,6 @@ define(function (require) {
 	        	game.deck.collect();
 	        break;
 	   	}
-	};
-
-	Game.prototype.createGameElements = function () {
-		var that = this;
-		var background = new PIXI.Sprite.fromImage('img/bg.jpg');
-		this.addChild(background);
-
-		/* TEXTS */
-		this.hints = new Hints();
-		this.addChild(this.hints);
-		
-		var dealersCardText = new PIXI.Text("Dealer's card", { font: 'bold 24px Arial', fill: '#c2c2c2', align: 'left' });
-		dealersCardText.x = 275;
-		dealersCardText.y = 450;
-		this.addChild(dealersCardText);
-
-		var balanceText = new PIXI.Text("BALANCE:", { font: 'bold 24px Arial', fill: '#f3d601', align: 'left' });
-		balanceText.x = 10;
-		balanceText.y = 10;
-		this.addChild(balanceText);
-
-		var betPerGame = new PIXI.Text("Bet per game:", { font: 'bold 18px Arial', fill: '#c2c2c2', align: 'left' });
-		betPerGame.x = 200;
-		betPerGame.y = settings.gameHeight - 80;
-		this.addChild(betPerGame);
-
-		/* BUTTONS */
-		this.doubleButton = new Button( "double" );
-		this.doubleButton.events.clicked.add(function(){
-			that.chosenMultiplier = "double";
-			that.currentState = that.STATES.PICK_A_CARD;
-			that.newState();
-		});
-		this.doubleButton.setXY( 750, 480 );
-		this.addChild(this.doubleButton);
-
-		this.doubleHalfButton = new Button( "doubleHalf" );
-		this.doubleHalfButton.events.clicked.add(function(){
-			that.chosenMultiplier = "doubleHalf";
-			that.currentState = that.STATES.PICK_A_CARD;
-			that.newState();
-		});
-		this.doubleHalfButton.setXY( 550, 480 );
-		this.addChild(this.doubleHalfButton);
-
-		this.startButton = new Button( "start" );
-		this.startButton.setXY( 920, settings.gameHeight - 65 );
-		this.startButton.events.clicked.add(function(){
-			that.currentState = that.STATES.START;
-			that.newState();
-		});
-		this.startButton.activate();
-		this.addChild(this.startButton);
-
-		this.collectButton = new Button( "collect" );
-		this.collectButton.setXY( 1100, settings.gameHeight - 65 );
-		this.collectButton.events.clicked.add(function(){
-			that.currentState = that.STATES.FINISH;
-			that.newState();
-		});
-		this.addChild(this.collectButton);
-
-		/* BALANCE */
-		this.balance = new Bangup();
-		this.balance.setXY( 150, 28);
-		this.balanceAmount = 1000;
-		this.balance.update( this.balanceAmount, this.balanceAmount );
-		this.addChild(this.balance);
-
-		/* DECK OF CARDS */
-		this.deck = new Deck();
-		this.addChild(this.deck);
-
-		/* WINS */
-		this.wins = new Wins();
-		this.addChild(this.wins);
-
-		/* BET */
-		this.bet = new Bet();
-		this.addChild(this.bet);
-
-		this.events.elementsCreated.dispatch();
-	
-		/* MESSAGE */
-		this.message = new Message();
-		this.addChild(this.message);
 	};
 
 	Game.prototype.start = function () {
