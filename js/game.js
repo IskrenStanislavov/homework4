@@ -49,7 +49,6 @@ define(function (require) {
 		this.dealedCardsContainer = null;
 		this.bet = null;
 		this.hints = null;
-		this.deck = null;
 		this.message = null;
 		this.dealedCards = [];
 		this.chosenMultiplier = "";
@@ -107,10 +106,6 @@ define(function (require) {
 
 		/* BALANCE */
 		this.balance = this.player.balance;
-
-		/* DECK OF CARDS */
-		this.deck = new Deck();
-		this.addChild(this.deck);
 
 		/* WINS */
 		this.wins = new Wins();
