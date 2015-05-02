@@ -25,6 +25,7 @@ define(function (require) {
 		
 		this.allCards = [].range(0,settings.deck.count-1).map(function (_, i){
             return new Card({
+            	"cardId": i,
                 "suit": settings.deck.suits[Math.floor(i/13)],
                 "rank": i%13 + 2
             });

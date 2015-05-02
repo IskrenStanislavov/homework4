@@ -3,7 +3,20 @@ define(function (require) {
 		settings = require('settings'),
 		Signal = require('libs/signals.min');
 
-	var Card = function(){
+	var Card = function(data){
+		//data.rank, data.suit; dataId is between [0,52)
+		if (data === undefined){
+			data = {
+            	"cardId": 0,
+                "suit": 0,
+                "rank": 0
+            };
+		}
+		this.rank = data.rank;
+		this.suit = data.suit;
+		this.cardId = data.cardId;
+
+		//visuals
 		PIXI.DisplayObjectContainer.call(this);
 
 		this.position.x = settings.cardsDefaultPosition.x;
@@ -22,7 +35,7 @@ define(function (require) {
 		this.backImage.visible = false;
 		this.addChild(this.backImage);
 
-		this.frontImage = new PIXI.Sprite.fromImage('0');
+		this.frontImage = new PIXI.Sprite.fromImage(this.cardId);
 		this.frontImage.anchor.x = this.frontImage.anchor.y = 0.5;
 		this.frontImage.scale.x = this.frontImage.scale.y = settings.cardsScale;
 		this.frontImage.visible = false;
