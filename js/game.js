@@ -108,10 +108,9 @@ define(function (require) {
 
 		/* BALANCE 1 */
 
-		this.balance1 = new Balance(1000);
-		this.balance1.setXY( 1150, 28);
-		this.addChild(this.balance1);
-		this.balance1.label.position.set(1010,10);
+		this.balance1 = this.addChild(new Balance(1000));
+		this.balance1.position.set( 1150, 28);
+		
 
 		/* BALANCE 2 */
 		this.balance = new Bangup();
