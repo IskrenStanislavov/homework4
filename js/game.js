@@ -29,16 +29,14 @@ define(function (require) {
 
 		this.currentState = "";
 
-		this.events = {
-			elementsCreated: new Signal()
-		}
 		this.initDEBUG();
+		this.createVisualElements();
 	};
 
 	Game.prototype = Object.create( PIXI.DisplayObjectContainer.prototype );
 
 
-	Game.prototype.createGameElements = function () {
+	Game.prototype.createVisualElements = function () {
 		var that = this;
 
 		this.doubleButton = null;
@@ -123,8 +121,6 @@ define(function (require) {
 		/* MESSAGE */
 		this.message = new Message();
 		this.addChild(this.message);
-
-		this.events.elementsCreated.dispatch();
 	};
 
 	Game.prototype.initDEBUG = function () {

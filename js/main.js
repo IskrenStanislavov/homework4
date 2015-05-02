@@ -14,11 +14,7 @@ require(["libs/pixi.dev", "libs/TweenMax.min", "settings", "stage", "game" ],
 		var game = new Game();
 		stage.addChild(game);
 
-		game.events.elementsCreated.addOnce(function(){
-			game.start();
-		});
-
-		game.createGameElements();
+		game.start();
 	}
 	
 	loader.load();
