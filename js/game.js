@@ -109,7 +109,7 @@ define(function (require) {
 		/* BALANCE 1 */
 
 		this.balance1 = this.addChild(new Balance(1000));
-		this.balance1.position.set( 1150, 28);
+		this.balance1.position.set( 1050, 10);
 		
 
 		/* BALANCE 2 */

@@ -6,8 +6,8 @@ define(function (require) {
 		Bangup.call(this);
 		this.amount = initialAmount;
 		this.update( this.amount, this.amount );
+		this.setAmountTextXY(140, 18);
 		this.label = this.addChild(new PIXI.Text("BALANCE:", { font: 'bold 24px Arial', fill: '#f3d601', align: 'left' }));
-		this.label.position.set(-140,-18);
 
 	};
 

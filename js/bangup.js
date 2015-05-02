@@ -23,6 +23,8 @@ define(function (require) {
 		this.text.y = y;
 	};
 
+	Bangup.prototype.setAmountTextXY = Bangup.prototype.setXY
+
 	Bangup.prototype.setCentered = function(){
 		this.centered = true;
 	};
