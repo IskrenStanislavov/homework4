@@ -227,7 +227,7 @@ define(function (require) {
 		var background = new PIXI.Sprite.fromImage('img/bg.jpg');
 		this.addChild(background);
 
-	/* TEXTS */
+		/* TEXTS */
 		this.hints = new Hints();
 		this.addChild(this.hints);
 		
@@ -246,7 +246,7 @@ define(function (require) {
 		betPerGame.y = settings.gameHeight - 80;
 		this.addChild(betPerGame);
 
-	/* BUTTONS */
+		/* BUTTONS */
 		this.doubleButton = new Button( "double" );
 		this.doubleButton.events.clicked.add(function(){
 			that.chosenMultiplier = "double";
@@ -282,28 +282,28 @@ define(function (require) {
 		});
 		this.addChild(this.collectButton);
 
-	/* BALANCE */
+		/* BALANCE */
 		this.balance = new Bangup();
 		this.balance.setXY( 150, 28);
 		this.balanceAmount = 1000;
 		this.balance.update( this.balanceAmount, this.balanceAmount );
 		this.addChild(this.balance);
 
-	/* DECK OF CARDS */
+		/* DECK OF CARDS */
 		this.deck = new Deck();
 		this.addChild(this.deck);
 
-	/* WINS */
+		/* WINS */
 		this.wins = new Wins();
 		this.addChild(this.wins);
 
-	/* BET */
+		/* BET */
 		this.bet = new Bet();
 		this.addChild(this.bet);
 
 		this.events.elementsCreated.dispatch();
 	
-	/* MESSAGE */
+		/* MESSAGE */
 		this.message = new Message();
 		this.addChild(this.message);
 	};
