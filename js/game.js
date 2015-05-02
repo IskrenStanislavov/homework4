@@ -103,6 +103,8 @@ define(function (require) {
 		});
 		this.addChild(this.collectButton);
 
+		this.player = this.addChild(this.player);
+		this.deck = this.addChild(this.deck);
 
 		/* BALANCE */
 		this.balance = this.player.balance;
