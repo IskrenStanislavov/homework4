@@ -29,7 +29,13 @@ define(function (require) {
 
 		this.currentState = "";
 
-		this.player = this.addChild(new Player(1000, 1));
+		this.players = [0,1].map(function(index){
+			return this.addChild(new Player(1000, index+1));
+		}.bind(this));
+
+		this.currentPlayer = 0;
+		this.switchPlayers(this.currentPlayer);
+
 		this.deck = this.addChild(new Deck());
 
 		this.initDEBUG();
@@ -38,6 +44,38 @@ define(function (require) {
 
 	Game.prototype = Object.create( PIXI.DisplayObjectContainer.prototype );
 
+	Object.defineProperties(Game.prototype, {
+		"player": {
+			get: function() {
+				return this.players[this.currentPlayer];
+			}
+		},
+		"bet": {
+			get: function() {
+				return this.player.bet;
+			}
+		},
+		"balance": {
+			get: function() {
+				return this.player.balance;
+			}
+		}
+	});
+	
+	Game.prototype.switchPlayers = function (playerIndex) {
+		if (playerIndex === undefined){
+			playerIndex = (this.currentPlayer + 1) % this.players.length;
+		}
+		this.currentPlayer = playerIndex;
+
+		this.players.forEach(function(player, index){
+			if (index === playerIndex){
+				player.visible = true;
+			} else {
+				player.visible = false;
+			}
+		});
+	};
 
 	Game.prototype.createVisualElements = function () {
 		var that = this;
@@ -47,7 +85,6 @@ define(function (require) {
 		this.startButton = null;
 		this.collectButton = null;
 		this.dealedCardsContainer = null;
-		this.bet = null;
 		this.hints = null;
 		this.message = null;
 		this.dealedCards = [];
@@ -55,7 +92,7 @@ define(function (require) {
 
 
 		var background = new PIXI.Sprite.fromImage('img/bg.jpg');
-		this.addChild(background);
+		this.addChildAt(background, 0);
 
 		/* TEXTS */
 		this.hints = new Hints();
@@ -103,18 +140,10 @@ define(function (require) {
 		});
 		this.addChild(this.collectButton);
 
-		this.player = this.addChild(this.player);
-		this.deck = this.addChild(this.deck);
-
-		/* BALANCE */
-		this.balance = this.player.balance;
-
 		/* WINS */
 		this.wins = new Wins();
 		this.addChild(this.wins);
 
-		/* BET */
-		this.bet = this.player.bet;
 
 	
 		/* MESSAGE */
@@ -153,7 +182,10 @@ define(function (require) {
 
 	Game.prototype.newState = function( state ){
 		var game = this;
+		console.log("##" + this.currentState + "-->" + state)
 		this.currentState = state;
+
+
 
 		switch( game.currentState ) {
 			case game.STATES.START:
@@ -280,6 +312,7 @@ define(function (require) {
         			if ( winAmount > 0 ) {
         				game.player.receiveAmount(winAmount);
         			}
+        			game.switchPlayers();
         		});
 
 	        	game.deck.collect();
