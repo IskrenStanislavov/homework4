@@ -4,25 +4,9 @@ define(function (require) {
 		Signal = require('libs/signals.min'),
 		Card = require('card');
 
-	function createSpriteFromImage( imgPath, x, y, scale, ctx ){
-		var card = PIXI.Sprite.fromImage( imgPath );
-		card.anchor.x = card.anchor.y = 0.5;
-		card.scale.x = card.scale.y = scale;
-		card.position.x = x;
-		card.position.y = y;
-		ctx.addChild(card);
-		return card;
-	}
-
 	var Deck = function(){
 		PIXI.DisplayObjectContainer.call(this);
 
-		// fake cards at the top left corner looking lika a deck of cards
-		var deckCard0 = createSpriteFromImage( "img/cards_back.png", 110, 180, 1.5, this ),
-			deckCard1 = createSpriteFromImage( "img/cards_back.png", 108, 178, 1.5, this ),
-			deckCard2 = createSpriteFromImage( "img/cards_back.png", 106, 176, 1.5, this ),
-			deckCard3 = createSpriteFromImage( "img/cards_back.png", 104, 174, 1.5, this );
-		
 		this.allCards = [].range(0,settings.deck.count-1).map(function (_, i){
             return new Card({
             	"cardId": i,
@@ -31,13 +15,16 @@ define(function (require) {
             });
         });
 
-        this.cardsLeft = this.allCards.slice(0);
-
 		this.cardsArr = [];
 		this.dealerCard = null;
 		this.playerCard = null;
 
-		this.createCards();
+		this.cardsLeft = this.allCards.shuffle();
+		this.cardsLeft.forEach(function(card, i){
+			this.addChild(card, this.cardsLeft.length-1);
+			card.position.x=125-i/4;
+			card.position.y=200-i/4;
+		}.bind(this));
 
 		this.events = {
 			cardPicked: new Signal(),
@@ -48,22 +35,6 @@ define(function (require) {
 	};
 
 	Deck.prototype = Object.create( PIXI.DisplayObjectContainer.prototype );
-
-	Deck.prototype.createCards = function(){
-		var that = this;
-
-		for (var i = 0; i < settings.totalPlayableCards; i++) {
-			var card = new Card();
-			card.events.clicked.add( function( pickedCard ){
-				that.handlePick( pickedCard );
-				that.events.cardPicked.dispatch();
-			});
-			this.cardsArr.push( card );
-			this.addChild(card);
-		}
-	};
-
-
 
 	Deck.prototype.handlePick = function( pickedCard ){
 		this.playerCard = pickedCard;
@@ -76,10 +47,18 @@ define(function (require) {
 		var that = this,
 			cardIndex = settings.totalPlayableCards - 1;
 
-		this.setCardsRankAndSuit();
+		[].range(0, settings.totalPlayableCards-1).forEach(function(i){
+			var card = that.cardsLeft.pop();
+			if (!card) return;
+			that.cardsArr.unshift(card);
+			card.events.clicked.add( function( pickedCard ){
+				that.handlePick( pickedCard );
+				that.events.cardPicked.dispatch();
+			});
+		});
 
 		function animateCard () {
-			if ( cardIndex >= 0 ) {
+			if ( cardIndex >= 0 && cardIndex<that.cardsArr.length) {
 				var currentCard = that.cardsArr[cardIndex];
 				currentCard.showBack();
 				currentCard.deal(cardIndex, function(){
@@ -132,30 +111,6 @@ define(function (require) {
 	Deck.prototype.disableCardPick = function(){
 		for (var i = 1; i < this.cardsArr.length; i++) {
 			this.cardsArr[i].disablePick();
-		}
-	};
-
-	Deck.prototype.setCardsRankAndSuit = function(){
-		var shuffledCardIndices = getShuffledCardIndices();
-
-		for (var i = 0; i < settings.totalPlayableCards; i++) {
-			var cardId = shuffledCardIndices[i];
-			this.cardsArr[i].setRankAndSuit( cardId );
-		}
-
-		function getShuffledCardIndices(){
-			var indArr = [],
-				shuffledArr = [];
-
-			for (var i = 0; i < settings.totalDeckCards; i++) {
-				indArr.push(i);
-			}
-
-			while(indArr.length > 0 ){
-				shuffledArr.push( indArr.splice(Math.floor(Math.random() * indArr.length), 1)[0] );
-			}
-
-			return shuffledArr;
 		}
 	};
 

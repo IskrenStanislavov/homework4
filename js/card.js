@@ -25,14 +25,13 @@ define(function (require) {
 		this.interactive = false;
 		this.buttonMode = false;
 		this.active = false;
-		this.rank = null;
 		this.flipped = false;
 		this.isWinCard = false;
 
 		this.backImage = PIXI.Sprite.fromImage( "img/cards_back.png" );
 		this.backImage.anchor.x = this.backImage.anchor.y = 0.5;
 		this.backImage.scale.x = this.backImage.scale.y = settings.cardsScale;
-		this.backImage.visible = false;
+		this.backImage.visible = true;
 		this.addChild(this.backImage);
 
 		this.frontImage = new PIXI.Sprite.fromImage(this.cardId);
@@ -158,15 +157,7 @@ define(function (require) {
 	};
 
 	Card.prototype.reset = function(){
-		this.position.x = settings.cardsDefaultPosition.x;
-		this.position.y = settings.cardsDefaultPosition.y;
-		this.backImage.visible = true;
-		this.frontImage.visible = false;
-		this.isWinCard = false;
-		this.buttonMode = false;
-		this.active = false;
-		this.flipped = false;
-		this.rank = null;
+		this.parent.removeChild(this);
 	};
 
 	return Card;
