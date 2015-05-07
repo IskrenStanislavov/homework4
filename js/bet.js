@@ -3,26 +3,16 @@ define(function (require) {
 		settings = require('settings'),
 		Button = require('button');
 
-	function changeText ( textObj, newText ) {
-		textObj.setText( newText.toFixed(2) );
-		
-		var bounds = textObj.getBounds();
-		textObj.pivot = new PIXI.Point(bounds.width / 2, bounds.height / 2);
-	}
-
-	function toFixed(number){
-		return Math.floor(number * 100) / 100;
-	}
-
 	var Bet = function( type ){
 		PIXI.DisplayObjectContainer.call(this);
 
-		this.amounts = [0.25, 0.5, 1, 2, 5, 10];
+		this.amounts = [0.25, 0.5, 1, 2, 5, 10, 20, 50, 100, 200, 500, 1000];
 		this.amountIndex = 3;
 		this.currentBet = 2;
 		
 		this.text = new PIXI.Text("", { font: 'bold 28px Arial', fill: '#f3d601', align: 'center' });
-		changeText( this.text, toFixed(this.currentBet) );
+		this.text.anchor = new PIXI.Point(0.5, 0.5);
+		this.text.setText(this.currentBet.toFixed(2));
 
 		this.text.x = 258;
 		this.text.y = settings.gameHeight - 25;
@@ -57,8 +47,7 @@ define(function (require) {
 				that.amountIndex = that.amounts.length - 1;
 				that.increaseBtn.deactivate();
 			}
-
-			changeText( that.text, toFixed(that.amounts[that.amountIndex]) );
+			that.text.setText(that.amounts[that.amountIndex].toFixed(2));
 		});
 
 		this.decreaseBtn.events.clicked.add(function(){
@@ -75,7 +64,7 @@ define(function (require) {
 				that.decreaseBtn.deactivate();
 			}
 
-			changeText( that.text, toFixed(that.amounts[that.amountIndex]) );
+			that.text.setText(that.amounts[that.amountIndex].toFixed(2));
 		});
 	};
 
