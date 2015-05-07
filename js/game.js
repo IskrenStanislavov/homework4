@@ -92,10 +92,6 @@ define(function (require) {
 		var background = new PIXI.Sprite.fromImage('img/bg.jpg');
 		this.addChildAt(background, 0);
 
-		// /* TEXTS */
-		// this.hints = new Hints();
-		// this.addChild(this.hints);
-		
 		var dealersCardText = new PIXI.Text("Dealer's card", { font: 'bold 24px Arial', fill: '#c2c2c2', align: 'left' });
 		dealersCardText.x = 275;
 		dealersCardText.y = 450;
