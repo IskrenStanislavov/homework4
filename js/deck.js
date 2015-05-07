@@ -118,9 +118,13 @@ define(function (require) {
 		return { dealer: this.dealerCard.rank, player: this.playerCard.rank }
 	};
 
-	Deck.prototype.flipTheOtherCards = function(){
-		this.cardsArr.forEach(function(card){
+	Deck.prototype.flipTheOtherCards = function(callback){
+		var that = this;
+		this.cardsArr.forEach(function(card, i){
 			card.flip();
+			if (i === that.cardsArr.length-1){
+				callback && callback();
+			}
 		});
 	};
 
