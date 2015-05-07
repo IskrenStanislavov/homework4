@@ -2,7 +2,15 @@ define(function (require) {
 	var settings = {
 		gameWidth: 1280,
 		gameHeight: 770,
-		assets: ['img/cards.json'],
+		assets: [
+		"img/bg.jpg",
+		"img/buttons.png",
+		"img/cards.json",
+		"img/cards.png",
+		"img/cards_back.png",
+		"img/golden_frame.png",
+		"img/green_frame.png"
+		],
 		btnTypes: [ "double", "doubleHalf", "increase", "decrease", "start", "collect" ],
 		cardPositions: [{x: 350, y: 330}, {x: 570, y: 330}, {x: 750, y: 330}, {x: 930, y: 330}, {x: 1110, y: 330}],
 		cardPositionOutsideGame: 1280 + 200,
@@ -22,6 +30,7 @@ define(function (require) {
 		totalDeckCards: 52,
 		totalPlayableCards: 5,
 		cardsScale: 1.5,
+		cardKeepingTimeAvailable: 1,//in seconds
 		cardsMaxRank: 13
 	};
 

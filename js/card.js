@@ -22,6 +22,7 @@ define(function (require) {
 		this.position.x = settings.cardsDefaultPosition.x;
 		this.position.y = settings.cardsDefaultPosition.y;
 
+		this.keep = false;
 		this.interactive = false;
 		this.buttonMode = false;
 		this.active = false;
@@ -97,12 +98,21 @@ define(function (require) {
 	};
 
 	Card.prototype.hide = function( callback ){
+		var moveTo = new PIXI.Point();
+		if (this.keep){
+			moveTo.x = settings.cardsDefaultPosition.x;
+			moveTo.y = settings.cardsDefaultPosition.y;
+		} else {
+			moveTo.x = settings.cardPositionOutsideGame;
+			moveTo.y = this.position.y
+		}
+
 		var that = this;
 		TweenMax.to(this.position, 0.2, {
-					x: settings.cardPositionOutsideGame,
+					x: moveTo.x,
+					y: moveTo.y,
 					ease: Power1.easeIn,
 					onComplete: function(){
-						that.reset();
 						callback && callback();
 					}
 				});
@@ -159,8 +169,21 @@ define(function (require) {
 		this.isWinCard = true;
 	};
 
+	Card.prototype.setKeep = function(){
+		this.keep = true;
+	};
+
 	Card.prototype.reset = function(){
-		this.parent.removeChild(this);
+		this.keep = false;
+		this.interactive = false;
+		this.buttonMode = false;
+		this.active = false;
+		this.flipped = false;
+		this.isWinCard = false;
+		this.backImage.visible = true;
+		this.frontImage.visible = false;
+		this.hoverFrame.visible = false;
+		this.winFrame.visible = false;
 	};
 
 	return Card;

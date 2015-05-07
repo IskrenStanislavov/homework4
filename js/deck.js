@@ -19,7 +19,7 @@ define(function (require) {
 		this.dealerCard = null;
 		this.playerCard = null;
 
-		this.cardsLeft = this.allCards.shuffle();
+		this.cardsLeft = this.allCards.slice(0).shuffle();
 		this.cardsLeft.forEach(function(card, i){
 			this.addChild(card, this.cardsLeft.length-1);
 			card.position.x=125-i/4;
@@ -36,6 +36,10 @@ define(function (require) {
 
 	Deck.prototype = Object.create( PIXI.DisplayObjectContainer.prototype );
 
+	Deck.prototype.isEmpty = function () {
+		return this.cardsLeft.length === 0;
+	};
+
 	Deck.prototype.handlePick = function( pickedCard ){
 		this.playerCard = pickedCard;
 		this.disableCardPick();
@@ -47,35 +51,33 @@ define(function (require) {
 		var that = this,
 			cardIndex = settings.totalPlayableCards - 1;
 
-		[].range(0, settings.totalPlayableCards-1).forEach(function(i){
+		var cardsToDeal = Math.min(settings.totalPlayableCards, that.cardsLeft.length);
+
+		[].range(0, cardsToDeal-1).forEach(function(index){
 			var card = that.cardsLeft.pop();
-			if (!card) return;
 			that.cardsArr.unshift(card);
 			card.events.clicked.add( function( pickedCard ){
 				that.handlePick( pickedCard );
 				that.events.cardPicked.dispatch();
 			});
+			if (index===cardsToDeal-1){
+				setTimeout(function(){
+					card.deal(cardsToDeal-1-index, function(){
+						that.events.allCardsDealed.dispatch();
+					});
+				}, (cardsToDeal-1-index)*100);
+			} else {
+				setTimeout(function(){
+					card.deal(cardsToDeal-1-index);
+				}, (cardsToDeal-1-index)*100);
+			}
 		});
 
-		function animateCard () {
-			if ( cardIndex >= 0 && cardIndex<that.cardsArr.length) {
-				var currentCard = that.cardsArr[cardIndex];
-				currentCard.showBack();
-				currentCard.deal(cardIndex, function(){
-					cardIndex--;
-					animateCard();
-				});
-			} else {
-				that.events.allCardsDealed.dispatch();
-			}
-		}
-
-		animateCard();
 	};
 
 	Deck.prototype.collect = function () {
 		var that = this,
-			cardIndex = settings.totalPlayableCards - 1;
+			cardIndex = that.cardsArr.length - 1;
 
 		this.hideWinEffects();
 
@@ -83,10 +85,15 @@ define(function (require) {
 			if ( cardIndex >= 0 ) {
 				var currentCard = that.cardsArr[cardIndex];
 				currentCard.hide(function(){
+					that.removeChild(currentCard);
+					if (that.cardsArr[cardIndex] === that.playerCard && that.playerCard.keep){
+						currentCard.reset();
+					}
 					cardIndex--;
 					animateCard();
 				});
 			} else {
+				that.cardsArr.length=0;
 				that.events.allCardsHidden.dispatch();
 			}
 		}
@@ -154,6 +161,17 @@ define(function (require) {
 				card.hideWinFrame();
 			}
 		});
+	};
+
+	Deck.prototype.setChosenCardForKeeping = function(){
+
+		this.playerCard.setKeep();
+		this.cardsArr.splice(this.cardsArr.indexOf(this.playerCard), 1);
+		this.setChildIndex(this.playerCard, 0);
+		this.cardsLeft.splice(0, 0, this.playerCard);
+		this.playerCard.hide(function(){
+			this.playerCard.reset();
+		}.bind(this));
 	};
 
 	Deck.prototype.restart = function(){

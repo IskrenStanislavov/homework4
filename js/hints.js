@@ -19,13 +19,16 @@ define(function (require) {
 		this.addChild(this.hintText);
 
 		this.TEXTS = {
-			BET 				: this.prefix + "CHOOSE YOUR BET, PLEASE",
-			CHOOSE_BUTTON 		: this.prefix + "CHOOSE DOUBLE OR DOUBLE HALF",
-			PICK 				: this.prefix + "PICK A HIGHER CARD TO WIN!",
-			LOOSER 				: this.prefix + "BETTER LUCK NEXT TIME!",
-			CONGRATS 			: this.prefix + "CONGRATULATIONS! YOU WIN!",
-			TIE 				: this.prefix + "IT'S A TIE. TRY AGAIN"
+			BET 				: this.prefix + ":" + "CHOOSE YOUR BET, PLEASE",
+			CHOOSE_BUTTON 		: this.prefix + ":" + "CHOOSE DOUBLE OR DOUBLE HALF",
+			PICK 				: this.prefix + ":" + "PICK A HIGHER CARD TO WIN!",
+			LOOSER 				: this.prefix + ":" + "BETTER LUCK NEXT TIME!",
+			CONGRATS 			: this.prefix + ":" + "CONGRATULATIONS! YOU WIN!",
+			TIE 				: this.prefix + ":" + "IT'S A TIE. TRY AGAIN",
+			KEEPING_CARD		: this.prefix + ":" + "TO RETURN THE CHOSEN CARD CLICK THE BUTTON",
+			FINAL_BALANCE		: this.prefix + " with FINAL_BALANCE: ",
 		};
+		this.TEXTS.KEEPING_CARD += "(in " + new String(settings.cardKeepingTimeAvailable) + " seconds)";
 
 	};
 

@@ -17,7 +17,7 @@ define(function (require) {
 		this.bet     = this.addChild(new Bet());
 
 		/* TEXTS */
-		this.hints = new Hints({"prefix":"Player " + new String(id) + ":"});
+		this.hints = new Hints({"prefix":"Player " + new String(id)});
 		this.addChild(this.hints);
 
 
@@ -28,6 +28,13 @@ define(function (require) {
 
 	Player.prototype.getBalance = function() {
 		return this.balance.amount;
+	};
+
+	Player.prototype.getFinalBalanceText = function() {
+		var result = "";
+		result += this.hints.TEXTS.FINAL_BALANCE;
+		result += new String(this.getBalance());
+	    return result;
 	};
 
 	Player.prototype.placeBet = function() {

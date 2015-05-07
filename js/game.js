@@ -86,14 +86,6 @@ define(function (require) {
 	Game.prototype.createVisualElements = function () {
 		var that = this;
 
-		// this.doubleButton = null;
-		// this.doubleHalfButton = null;
-		// this.startButton = null;
-		// this.collectButton = null;
-		// this.dealedCardsContainer = null;
-		// this.hints = null;
-		// this.message = null;
-		// this.dealedCards = [];
 		this.chosenMultiplier = "";
 
 
@@ -142,7 +134,8 @@ define(function (require) {
 		this.collectButton = new Button( "collect" );
 		this.collectButton.setXY( 1100, settings.gameHeight - 65 );
 		this.collectButton.events.clicked.add(function(){
-			// that.newState(that.STATES.FINISH);
+			that.deck.setChosenCardForKeeping();
+			that.collectButton.deactivate();
 		});
 		this.addChild(this.collectButton);
 
@@ -196,13 +189,13 @@ define(function (require) {
 		switch( game.currentState ) {
 	        case game.STATES.BET_CHOOSING:
 	        	game.hints.changeText( game.hints.TEXTS.BET );
-        		game.deactivateButtons([game.doubleButton, game.doubleHalfButton, game.collectButton]);
+        		game.deactivateButtons([game.doubleButton, game.doubleHalfButton]);
 				game.activateButtons([game.startButton]);
 	        	game.bet.activateButtons();
 	        break;
 
 			case game.STATES.START:
-				game.deactivateButtons([game.startButton, game.collectButton]);
+				game.deactivateButtons([game.startButton]);
 				game.bet.deactivateButtons();
 
 				if ( !game.player.placeBet() ) {// failed to place bet
@@ -231,7 +224,7 @@ define(function (require) {
 	        	game.wins.showFutureWins();
 	        break;
 	        case game.STATES.PICK_A_CARD:
-	        	game.deactivateButtons([game.doubleButton, game.doubleHalfButton, game.collectButton]);
+	        	game.deactivateButtons([game.doubleButton, game.doubleHalfButton]);
 	        	game.wins.hideNotChosenMultiplierSum( game.chosenMultiplier );
 	        	game.hints.hide();
 
@@ -274,7 +267,10 @@ define(function (require) {
         		});
 	        break;
 	        case game.STATES.CARDS_COLLECTION:
+		        game.hints.changeText(game.hints.TEXTS.KEEPING_CARD);
+	        	game.collectButton.activate();
 	        	setTimeout(function(){
+		        	game.collectButton.deactivate();
 	        		game.wins.hideFutureWins();
 	        		game.hints.hide();
 
@@ -282,22 +278,27 @@ define(function (require) {
 	        			game.newState(game.STATES.SWITCH_PLAYERS);
 	        		});
 	        		game.deck.collect();
-	        	}, 500);
+	        	}, 1000 * settings.cardKeepingTimeAvailable);
 	        break;
 	        case game.STATES.SWITCH_PLAYERS:
 	        	game.wins.hide();
 	        	game.switchPlayers(undefined, function(){
-		        	game.newState(game.STATES.BET_CHOOSING);
+	        		if (game.deck.isEmpty()){
+		        		game.newState(game.STATES.FINISH);
+	        		} else {
+			        	game.newState(game.STATES.BET_CHOOSING);
+	        		}
 	        	});
 	        break;
-	      //   case game.STATES.FINISH:
-       //  		game.deactivateButtons([game.doubleButton, game.doubleHalfButton, game.collectButton]);
-    			// game.activateButtons([game.startButton]);
-    			// game.bet.activateButtons();
-	      //   	game.wins.hide();
-	      //   break;
+	        case game.STATES.FINISH:
+	        	var gameOverText = "GAME OVER!";
+	        	game.players.forEach(function(player){
+	        		gameOverText += "\n" + player.getFinalBalanceText();
+	        	});
+	        	game.hints.changeText( gameOverText );
+	        break;
 	        default:
-	        	throw "no state:"+state;
+	        	throw "no such state:"+state;
 	        break;
 	   	}
 	};
