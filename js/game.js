@@ -39,6 +39,17 @@ define(function (require) {
 
 		this.initDEBUG();
 		this.createVisualElements();
+		this.events = {
+			cardPicked: new Signal(),
+			allCardsDealed: new Signal(),
+			allCardsHidden: new Signal(),
+			dealersCardShown: new Signal()
+		};
+
+		this.dealerCard = null;
+		this.playerCard = null;
+		this.cardsArr = [];
+
 	};
 
 	Game.prototype = Object.create( PIXI.DisplayObjectContainer.prototype );
@@ -130,7 +141,7 @@ define(function (require) {
 		this.collectButton = new Button( "collect" );
 		this.collectButton.setXY( 1100, settings.gameHeight - 65 );
 		this.collectButton.events.clicked.add(function(){
-			that.deck.setChosenCardForKeeping();
+			that.setChosenCardForKeeping();
 			that.collectButton.deactivate();
 		});
 		this.addChild(this.collectButton);
@@ -153,24 +164,24 @@ define(function (require) {
 
 		// call any of these methods BEFOR CLICKING ON "double" or "double half" buttons
 		DEBUG.gaffs.iWin = function(){
-			DEBUG.game.deck.cardsArr[0].setRankAndSuit( 0 );
+			DEBUG.game.cardsArr[0].setRankAndSuit( 0 );
 
 			for (var i = 1; i < 5; i++) {
-				DEBUG.game.deck.cardsArr[i].setRankAndSuit( 12 );
+				DEBUG.game.cardsArr[i].setRankAndSuit( 12 );
 			}
 		};
 
 		DEBUG.gaffs.dealerWins = function(){
-			DEBUG.game.deck.cardsArr[0].setRankAndSuit( 12 );
+			DEBUG.game.cardsArr[0].setRankAndSuit( 12 );
 
 			for (var i = 1; i < 5; i++) {
-				DEBUG.game.deck.cardsArr[i].setRankAndSuit( 0 );
+				DEBUG.game.cardsArr[i].setRankAndSuit( 0 );
 			}
 		};
 
 		DEBUG.gaffs.tie = function(){
 			for (var i = 0; i < 5; i++) {
-				DEBUG.game.deck.cardsArr[i].setRankAndSuit( 0 );
+				DEBUG.game.cardsArr[i].setRankAndSuit( 0 );
 			}
 		};
 	};
@@ -209,14 +220,14 @@ define(function (require) {
 				game.newState(game.STATES.DEAL);
 			break;
 			case game.STATES.DEAL:
-				game.deck.events.allCardsDealed.addOnce(function(){
+				game.events.allCardsDealed.addOnce(function(){
 					game.hints.changeText( game.hints.TEXTS.CHOOSE_BUTTON );
 					game.deactivateButtons([game.startButton]);
 					game.activateButtons([game.doubleButton, game.doubleHalfButton]);
 				});
 
 				game.hints.hide();
-	        	game.deck.deal();
+	        	game.deal();
 	        	game.wins.showFutureWins();
 	        break;
 	        case game.STATES.PICK_A_CARD:
@@ -224,18 +235,18 @@ define(function (require) {
 	        	game.wins.hideNotChosenMultiplierSum( game.chosenMultiplier );
 	        	game.hints.hide();
 
-	        	game.deck.events.cardPicked.addOnce(function(){
+	        	game.events.cardPicked.addOnce(function(){
 					game.newState(game.STATES.RESULT);
 	        	});
 
-	        	game.deck.events.dealersCardShown.addOnce(function(){
+	        	game.events.dealersCardShown.addOnce(function(){
         			game.hints.changeText( game.hints.TEXTS.PICK );
-	        		game.deck.enableCardPick();
+	        		game.enableCardPick();
 	        	});
-	        	game.deck.showDealersCard();
+	        	game.showDealersCard();
 	        break;
 	        case game.STATES.RESULT:
-	        	var resultData = game.deck.getResultData();
+	        	var resultData = game.getResultData();
 	        		game.wins.setWinner( resultData );
 
 	        	var displayHintText;
@@ -249,9 +260,9 @@ define(function (require) {
 	        	}
 
 		        game.hints.changeText(displayHintText);
-        		game.deck.showWinningCardEffects(function(){
+        		game.showWinningCardEffects(function(){
 	        		setTimeout(function(){
-		        		game.deck.flipTheOtherCards(function(){
+		        		game.flipTheOtherCards(function(){
 		        			game.wins.updateWinAmount();
 			        		var winAmount = game.wins.getWinAmount();
 			        		if ( winAmount > 0 ) {
@@ -270,10 +281,10 @@ define(function (require) {
 	        		game.wins.hideFutureWins();
 	        		game.hints.hide();
 
-	        		game.deck.events.allCardsHidden.addOnce(function(){
+	        		game.events.allCardsHidden.addOnce(function(){
 	        			game.newState(game.STATES.SWITCH_PLAYERS);
 	        		});
-	        		game.deck.collect();
+	        		game.collect();
 	        	}, 1000 * settings.cardKeepingTimeAvailable);
 	        break;
 	        case game.STATES.SWITCH_PLAYERS:
@@ -308,6 +319,132 @@ define(function (require) {
 			btn.activate();
 		});
 	};
+
+	Game.prototype.deal = function () {
+		var that = this,
+			cardIndex = settings.totalPlayableCards - 1;
+
+		var numberOfCardsToDeal = Math.min(settings.totalPlayableCards, that.deck.cardsLeft.length);
+
+		[].range(0, numberOfCardsToDeal-1).forEach(function(index){
+			var card = that.deck.cardsLeft.pop();
+			that.cardsArr.unshift(card);
+			card.events.clicked.add( function( pickedCard ){
+				that.playerCard = pickedCard;
+				that.disableCardPick();
+				pickedCard.flip();
+				that.setWinningCards();
+
+				that.events.cardPicked.dispatch();
+			});
+			if (index===numberOfCardsToDeal-1){
+				setTimeout(function(){
+					card.deal(numberOfCardsToDeal-1-index, function(){
+						that.events.allCardsDealed.dispatch();
+					});
+				}, (numberOfCardsToDeal-1-index)*100);
+			} else {
+				setTimeout(function(){
+					card.deal(numberOfCardsToDeal-1-index);
+				}, (numberOfCardsToDeal-1-index)*100);
+			}
+		});
+
+	};
+
+	Game.prototype.collect = function () {
+		var that = this,
+			cardIndex = that.cardsArr.length - 1;
+
+		this.hideWinEffects();
+
+		function animateCard () {
+			if ( cardIndex >= 0 ) {
+				var currentCard = that.cardsArr[cardIndex];
+				currentCard.hide(function(){
+					that.removeChild(currentCard);
+					if (that.cardsArr[cardIndex] === that.playerCard && that.playerCard.keep){
+						currentCard.reset();
+					}
+					cardIndex--;
+					animateCard();
+				});
+			} else {
+				that.cardsArr.length=0;
+				that.events.allCardsHidden.dispatch();
+			}
+		}
+
+		animateCard();
+	};
+
+	Game.prototype.showDealersCard = function(){
+		this.dealerCard = this.cardsArr[0];
+
+		this.dealerCard.flip(function(){
+			this.events.dealersCardShown.dispatch();
+		}.bind(this));
+	};
+
+	Game.prototype.enableCardPick = function(){
+		for (var i = 1; i < this.cardsArr.length; i++) {
+			this.cardsArr[i].enablePick();
+		}
+	};
+
+	Game.prototype.disableCardPick = function(){
+		for (var i = 1; i < this.cardsArr.length; i++) {
+			this.cardsArr[i].disablePick();
+		}
+	};
+
+	Game.prototype.getResultData = function(){
+		return { dealer: this.dealerCard.rank, player: this.playerCard.rank }
+	};
+
+	Game.prototype.flipTheOtherCards = function(callback){
+		this.cardsArr.forEach(function(card, i){
+			card.flip(i===0 ? callback:undefined);
+		});
+	};
+
+	Game.prototype.showWinningCardEffects = function(callback){
+		callback.done = false;
+		this.cardsArr.forEach(function(card, index){
+			if ( card.isWinCard ) {
+				card.showWinFrame();
+				if (!callback.done){
+					callback.done = true;
+					callback && callback();
+				}
+			}
+		});
+	};
+
+	Game.prototype.hideWinEffects = function(){
+		this.cardsArr.forEach(function(card){
+			if ( card.isWinCard ) {
+				card.hideWinFrame();
+			}
+		});
+	};
+
+	Game.prototype.setChosenCardForKeeping = function(){
+		this.cardsArr.splice(this.cardsArr.indexOf(this.playerCard), 1);
+		this.deck.returnCard(this.playerCard);
+	};
+
+	Game.prototype.setWinningCards = function(){
+		if ( this.dealerCard.rank > this.playerCard.rank ) {
+			this.dealerCard.setWinning();
+		} else if ( this.dealerCard.rank < this.playerCard.rank ) {
+			this.playerCard.setWinning();
+		} else {
+			this.dealerCard.setWinning();
+			this.playerCard.setWinning();
+		}
+	};
+
 
 	Game.prototype.deactivateButtons = function( buttons ){
 		buttons.forEach(function( btn ){
