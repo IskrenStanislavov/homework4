@@ -2,8 +2,14 @@ define(function (require) {
 	var PIXI = require('libs/pixi.dev'),
 		settings = require('settings');
 
-	var Hints = function(){
+	var Hints = function(data){
 		PIXI.DisplayObjectContainer.call(this);
+
+		if(data.prefix !== undefined){
+			this.prefix = data.prefix;
+		} else {
+			this.prefix = "PLAYER 1:"
+		}
 
 		this.hintText = new PIXI.Text("", { font: 'bold 24px Arial', fill: '#ffffff', align: 'center' });
 		this.hintText.x = settings.gameWidth/2 - this.hintText.width/2 + 90;
@@ -13,12 +19,12 @@ define(function (require) {
 		this.addChild(this.hintText);
 
 		this.TEXTS = {
-			BET: "CHOOSE YOUR BET, PLEASE",
-			CHOOSE_BUTTON: "CHOOSE DOUBLE OR DOUBLE HALF",
-			PICK: "PICK A HIGHER CARD TO WIN!",
-			LOOSER: "BETTER LUCK NEXT TIME!",
-			CONGRATS: "CONGRATULATIONS! YOU WIN!",
-			TIE: "IT'S A TIE. TRY AGAIN"
+			BET: this.prefix + "CHOOSE YOUR BET, PLEASE",
+			CHOOSE_BUTTON: this.prefix + "CHOOSE DOUBLE OR DOUBLE HALF",
+			PICK: this.prefix + "PICK A HIGHER CARD TO WIN!",
+			LOOSER: this.prefix + "BETTER LUCK NEXT TIME!",
+			CONGRATS: this.prefix + "CONGRATULATIONS! YOU WIN!",
+			TIE: this.prefix + "IT'S A TIE. TRY AGAIN"
 		};
 
 	};

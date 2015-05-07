@@ -2,6 +2,7 @@ define(function (require) {
 	var PIXI 	= require('libs/pixi.dev');
 	var Balance = require('balance');
 	var Bet 	= require('bet');
+	var Hints 	= require('hints');
 
 	var Player = function(initialAmount, id){
 		PIXI.DisplayObjectContainer.call(this);
@@ -14,6 +15,11 @@ define(function (require) {
 		this.balance = this.addChild(new Balance(initialAmount));
 
 		this.bet     = this.addChild(new Bet());
+
+		/* TEXTS */
+		this.hints = new Hints({"prefix":"Player " + new String(id) + ":"});
+		this.addChild(this.hints);
+
 
 		this.card = false;
 	};

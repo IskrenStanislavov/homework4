@@ -5,7 +5,6 @@ define(function (require) {
 		Button = require('button'),
 		Bangup = require('bangup'),
 		Bet = require('bet'),
-		Hints = require('hints'),
 		Deck = require('deck'),
 		Message = require('message'),
 		Wins = require('wins');
@@ -59,6 +58,11 @@ define(function (require) {
 			get: function() {
 				return this.player.balance;
 			}
+		},
+		"hints": {
+			get: function() {
+				return this.player.hints;
+			}
 		}
 	});
 	
@@ -80,23 +84,23 @@ define(function (require) {
 	Game.prototype.createVisualElements = function () {
 		var that = this;
 
-		this.doubleButton = null;
-		this.doubleHalfButton = null;
-		this.startButton = null;
-		this.collectButton = null;
-		this.dealedCardsContainer = null;
-		this.hints = null;
-		this.message = null;
-		this.dealedCards = [];
+		// this.doubleButton = null;
+		// this.doubleHalfButton = null;
+		// this.startButton = null;
+		// this.collectButton = null;
+		// this.dealedCardsContainer = null;
+		// this.hints = null;
+		// this.message = null;
+		// this.dealedCards = [];
 		this.chosenMultiplier = "";
 
 
 		var background = new PIXI.Sprite.fromImage('img/bg.jpg');
 		this.addChildAt(background, 0);
 
-		/* TEXTS */
-		this.hints = new Hints();
-		this.addChild(this.hints);
+		// /* TEXTS */
+		// this.hints = new Hints();
+		// this.addChild(this.hints);
 		
 		var dealersCardText = new PIXI.Text("Dealer's card", { font: 'bold 24px Arial', fill: '#c2c2c2', align: 'left' });
 		dealersCardText.x = 275;
