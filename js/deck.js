@@ -119,12 +119,8 @@ define(function (require) {
 	};
 
 	Deck.prototype.flipTheOtherCards = function(callback){
-		var that = this;
 		this.cardsArr.forEach(function(card, i){
-			card.flip();
-			if (i === that.cardsArr.length-1){
-				callback && callback();
-			}
+			card.flip(i===0 ? callback:undefined);
 		});
 	};
 
