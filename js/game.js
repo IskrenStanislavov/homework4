@@ -16,14 +16,14 @@ define(function (require) {
 		PIXI.DisplayObjectContainer.call(this);
 
 		this.STATES = {
-			START 		: 'start',
-			DEAL 		: 'deal',
-			BET 		: 'bet',
-			PICK_A_CARD : 'pick',
-			RESULT 		: 'result',
-			WIN 		: 'win',
-			LOOSE 		: 'loose',
-			FINISH 		: 'finish'
+			BET_CHOOSING     : 'bet',
+			START 		     : 'start',
+			DEAL 		     : 'deal',
+			PICK_A_CARD      : 'pick',
+			RESULT 		     : 'result',
+			SWITCH_PLAYERS   : "switch",
+			CARDS_COLLECTION : "collect",
+			FINISH 		     : 'finish'
 		};
 
 		this.currentState = "";
@@ -66,10 +66,11 @@ define(function (require) {
 		}
 	});
 	
-	Game.prototype.switchPlayers = function (playerIndex) {
+	Game.prototype.switchPlayers = function (playerIndex, callback) {
 		if (playerIndex === undefined){
 			playerIndex = (this.currentPlayer + 1) % this.players.length;
 		}
+		console.log("..activating player"+new String(playerIndex+1));
 		this.currentPlayer = playerIndex;
 
 		this.players.forEach(function(player, index){
@@ -79,6 +80,7 @@ define(function (require) {
 				player.visible = false;
 			}
 		});
+		callback && callback();
 	};
 
 	Game.prototype.createVisualElements = function () {
@@ -140,7 +142,7 @@ define(function (require) {
 		this.collectButton = new Button( "collect" );
 		this.collectButton.setXY( 1100, settings.gameHeight - 65 );
 		this.collectButton.events.clicked.add(function(){
-			that.newState(that.STATES.FINISH);
+			// that.newState(that.STATES.FINISH);
 		});
 		this.addChild(this.collectButton);
 
@@ -192,22 +194,27 @@ define(function (require) {
 
 
 		switch( game.currentState ) {
+	        case game.STATES.BET_CHOOSING:
+	        	game.hints.changeText( game.hints.TEXTS.BET );
+        		game.deactivateButtons([game.doubleButton, game.doubleHalfButton, game.collectButton]);
+				game.activateButtons([game.startButton]);
+	        	game.bet.activateButtons();
+	        break;
+
 			case game.STATES.START:
+				game.deactivateButtons([game.startButton, game.collectButton]);
+				game.bet.deactivateButtons();
 
 				if ( !game.player.placeBet() ) {// failed to place bet
-					game.deactivateButtons([game.doubleButton, game.doubleHalfButton, game.collectButton, game.startButton]);
-					game.bet.deactivateButtons();
+					game.deactivateButtons([game.doubleButton, game.doubleHalfButton]);
 
 					game.message.events.messageHidden.addOnce(function(){
-						game.activateButtons([game.startButton]);
-						game.bet.activateButtons();
+						game.newState(game.STATES.BET_CHOOSING);
 					});
 					game.message.show();
 					return;
 				}
 
-				game.deactivateButtons([game.startButton]);
-				game.bet.deactivateButtons();
 				game.wins.showStartAmount( game.bet.getCurrentBet() );
 
 				game.newState(game.STATES.DEAL);
@@ -216,16 +223,12 @@ define(function (require) {
 				game.deck.events.allCardsDealed.addOnce(function(){
 					game.hints.changeText( game.hints.TEXTS.CHOOSE_BUTTON );
 					game.deactivateButtons([game.startButton]);
-					game.activateButtons([game.doubleButton, game.doubleHalfButton, game.collectButton]);
+					game.activateButtons([game.doubleButton, game.doubleHalfButton]);
 				});
 
 				game.hints.hide();
 	        	game.deck.deal();
 	        	game.wins.showFutureWins();
-	        break;
-	        case game.STATES.BET:
-	        	game.hints.changeText( game.hints.TEXTS.BET );
-	        	game.bet.activateButtons();
 	        break;
 	        case game.STATES.PICK_A_CARD:
 	        	game.deactivateButtons([game.doubleButton, game.doubleHalfButton, game.collectButton]);
@@ -246,86 +249,61 @@ define(function (require) {
 	        	var resultData = game.deck.getResultData();
 	        		game.wins.setWinner( resultData );
 
+	        	var displayHintText;
+
 	        	if ( resultData.dealer > resultData.player ) {
-					game.newState(game.STATES.LOOSE);
+	        		displayHintText = game.hints.TEXTS.LOOSER;
 	        	} else if ( resultData.dealer < resultData.player ) {
-					game.newState(game.STATES.WIN);
+	        		displayHintText = game.hints.TEXTS.CONGRATS;
 	        	} else {
-					game.newState(game.STATES.TIE);
+		        	displayHintText = game.hints.TEXTS.TIE;
 	        	}
-	        break;
-	        case game.STATES.WIN:
-	        	game.hints.changeText( game.hints.TEXTS.CONGRATS );
-        		game.deck.showWinEffects();
 
-        		setTimeout(function(){
-	        		game.deck.flipTheOtherCards();
-        			game.wins.updateWinAmount();
-	        	}, 1500);
-
-	        	setTimeout(function(){
-	        		game.deck.events.allCardsHidden.addOnce(function(){
-						game.newState(game.STATES.DEAL);
-	        		});
-
-	        		game.wins.hideFutureWins();
-	        		game.hints.hide();
-	        		game.deck.collect();
-	        	}, 3500);
-	        break;
-	        case game.STATES.LOOSE:
-        		game.hints.changeText( game.hints.TEXTS.LOOSER );
-        		game.deck.showWinEffects();
-
-        		setTimeout(function(){
-	        		game.deck.flipTheOtherCards();
-        			game.wins.updateWinAmount();
-	        	}, 1500);
-
-	        	setTimeout(function(){
-					game.newState(game.STATES.FINISH);
-	        	}, 3500);
-	        break;
-	        case game.STATES.TIE:
-        		game.hints.changeText( game.hints.TEXTS.TIE );
-
-        		setTimeout(function(){
-	        		game.deck.flipTheOtherCards();
-	        	}, 1500);
-
-	        	setTimeout(function(){
-	        		game.deck.events.allCardsHidden.addOnce(function(){
-						game.newState(game.STATES.DEAL);
-	        		});
-
-	        		game.wins.hideFutureWins();
-	        		game.hints.hide();
-	        		game.deck.collect();
-	        	}, 3000);
-	        break;
-	        case game.STATES.FINISH:
-        		game.deactivateButtons([game.doubleButton, game.doubleHalfButton, game.collectButton]);
-	        	game.wins.hideFutureWins();
-	        	game.hints.hide();
-	        	game.wins.hide();
-
-	        	game.deck.events.allCardsHidden.addOnce(function(){
-        			game.activateButtons([game.startButton]);
-        			game.bet.activateButtons();
-        			var winAmount = game.wins.getWinAmount();
-        			if ( winAmount > 0 ) {
-        				game.player.receiveAmount(winAmount);
-        			}
-        			game.switchPlayers();
+		        game.hints.changeText(displayHintText);
+        		game.deck.showWinningCardEffects(function(){
+	        		setTimeout(function(){
+		        		game.deck.flipTheOtherCards(function(){
+		        			game.wins.updateWinAmount();
+			        		var winAmount = game.wins.getWinAmount();
+			        		if ( winAmount > 0 ) {
+			        			game.player.receiveAmount(winAmount);
+			        		}
+		        			game.newState(game.STATES.CARDS_COLLECTION);
+		        		});
+		        	}, 500);
         		});
+	        break;
+	        case game.STATES.CARDS_COLLECTION:
+	        	setTimeout(function(){
+	        		game.wins.hideFutureWins();
+	        		game.hints.hide();
 
-	        	game.deck.collect();
+	        		game.deck.events.allCardsHidden.addOnce(function(){
+	        			game.newState(game.STATES.SWITCH_PLAYERS);
+	        		});
+	        		game.deck.collect();
+	        	}, 500);
+	        break;
+	        case game.STATES.SWITCH_PLAYERS:
+	        	game.wins.hide();
+	        	game.switchPlayers(undefined, function(){
+		        	game.newState(game.STATES.BET_CHOOSING);
+	        	});
+	        break;
+	      //   case game.STATES.FINISH:
+       //  		game.deactivateButtons([game.doubleButton, game.doubleHalfButton, game.collectButton]);
+    			// game.activateButtons([game.startButton]);
+    			// game.bet.activateButtons();
+	      //   	game.wins.hide();
+	      //   break;
+	        default:
+	        	throw "no state:"+state;
 	        break;
 	   	}
 	};
 
 	Game.prototype.start = function () {
-		this.newState(this.STATES.BET);
+		this.newState(this.STATES.BET_CHOOSING);
 	};
 
 	Game.prototype.activateButtons = function( buttons ){

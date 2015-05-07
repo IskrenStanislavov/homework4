@@ -40,7 +40,7 @@ define(function (require) {
 		this.playerCard = pickedCard;
 		this.disableCardPick();
 		pickedCard.flip();
-		this.setWinningCard();
+		this.setWinningCards();
 	};
 
 	Deck.prototype.deal = function () {
@@ -124,18 +124,26 @@ define(function (require) {
 		});
 	};
 
-	Deck.prototype.setWinningCard = function(){
+	Deck.prototype.setWinningCards = function(){
 		if ( this.dealerCard.rank > this.playerCard.rank ) {
 			this.dealerCard.setWinning();
 		} else if ( this.dealerCard.rank < this.playerCard.rank ) {
 			this.playerCard.setWinning();
+		} else {
+			this.dealerCard.setWinning();
+			this.playerCard.setWinning();
 		}
 	};
 
-	Deck.prototype.showWinEffects = function(){
-		this.cardsArr.forEach(function(card){
+	Deck.prototype.showWinningCardEffects = function(callback){
+		callback.done = false;
+		this.cardsArr.forEach(function(card, index){
 			if ( card.isWinCard ) {
 				card.showWinFrame();
+				if (!callback.done){
+					callback.done = true;
+					callback && callback();
+				}
 			}
 		});
 	};

@@ -44,7 +44,7 @@ define(function (require) {
 		this.cumulativeWinAmoiunt = Math.floor( this.futureWinAmount * 100) / 100;
 	};
 
-	Wins.prototype.hide = function( currentBet ){
+	Wins.prototype.hide = function(){
 		this.winAmountBangup.visible = false;
 	};
 

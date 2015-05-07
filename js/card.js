@@ -109,7 +109,10 @@ define(function (require) {
 	};
 
 	Card.prototype.flip = function( callback ){
-		if ( this.flipped ) { return; }
+		if ( this.flipped ) {
+			callback && callback();
+			return;
+		}
 		var that = this;
 		this.flipped = true;
 
