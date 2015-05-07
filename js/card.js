@@ -152,7 +152,7 @@ define(function (require) {
 		this.flipped = false;
 	};
 
-	Card.prototype.setRankAndSuit = function( cardId ){
+	Card.prototype.setRankAndSuit = function( cardId ){ //used in DEBUG stuff
 		this.frontImage.setTexture( PIXI.Texture.fromImage( cardId) );
 		this.rank = cardId % settings.cardsMaxRank;
 	};
