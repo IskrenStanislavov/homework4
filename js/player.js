@@ -3,28 +3,26 @@ define(function (require) {
 	var Balance = require('balance');
 	var Bet 	= require('bet');
 	var Hints 	= require('hints');
+	var Person 	= require('person');
+	var settings= require('settings');
+	require('libs/underscore.min');
 
 	var Player = function(initialAmount, id){
+		Person.call(this, {
+			"numberOfCards": settings.playerCardsNumer,
+			"money": initialAmount,
+			"id": id
+		});
+
+
 		PIXI.DisplayObjectContainer.call(this);
-		if (id === undefined){
-			this.id = "";
-		} else {
-			this.id = id;
-		}
-
 		this.balance = this.addChild(new Balance(initialAmount));
-
 		this.bet     = this.addChild(new Bet());
-
-		/* TEXTS */
-		this.hints = new Hints({"prefix":"Player " + new String(id)});
-		this.addChild(this.hints);
-
-
-		this.card = false;
+		this.hints   = this.addChild(new Hints({"prefix":"Player " + new String(id)}));
 	};
 
-	Player.prototype = Object.create( PIXI.DisplayObjectContainer.prototype );
+	_.extend(Player.prototype, Person.prototype );
+	_.extend(Player.prototype, PIXI.DisplayObjectContainer.prototype );
 
 	Player.prototype.getBalance = function() {
 		return this.balance.amount;

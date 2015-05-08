@@ -29,6 +29,9 @@ define(function (require) {
 		},
 		totalDeckCards: 52,
 		totalPlayableCards: 5,
+		dealerCardsNumer:1,
+		playerCardsNumer:4,
+
 		cardsScale: 1.5,
 		cardKeepingTimeAvailable: 1,//in seconds
 		cardsMaxRank: 13
